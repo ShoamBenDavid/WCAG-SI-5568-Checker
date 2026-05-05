@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: iframe without title</title>
+  </head>
+  <body>
+    <main>
+      <h1>Iframe fixture</h1>
+      <!-- Should fail: no title -->
+      <iframe src="about:blank" width="200" height="100"></iframe>
+      <!-- Should pass: has a title -->
+      <iframe
+        src="about:blank"
+        width="200"
+        height="100"
+        title="Embedded sample iframe"
+      ></iframe>
+    </main>
+  </body>
+</html>

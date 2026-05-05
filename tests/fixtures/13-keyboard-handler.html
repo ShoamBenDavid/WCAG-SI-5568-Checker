@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: keyboard handlers</title>
+  </head>
+  <body>
+    <main>
+      <h1>Keyboard handler fixture</h1>
+
+      <!-- Should fail: clickable div with no role / tabindex / keydown -->
+      <div onclick="void 0">Click me (no keyboard support)</div>
+
+      <!-- Should fail: role=button on a div without tabindex -->
+      <div role="button">Custom button (no tabindex)</div>
+
+      <!-- Should pass: real button -->
+      <button type="button">Real button</button>
+
+      <!-- Should pass: real link -->
+      <a href="#">Real link</a>
+    </main>
+  </body>
+</html>

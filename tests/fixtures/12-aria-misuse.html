@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: ARIA misuse</title>
+  </head>
+  <body>
+    <main>
+      <h1>ARIA misuse fixture</h1>
+
+      <!-- Should fail: invalid role -->
+      <div role="invalidrole">Not a valid ARIA role</div>
+
+      <!-- Should fail: dangling aria-labelledby -->
+      <button aria-labelledby="does-not-exist">Click</button>
+
+      <!-- Should fail: dangling aria-describedby -->
+      <input type="text" aria-describedby="missing-help" aria-label="Username" />
+
+      <!-- Should fail: aria-hidden=true on a focusable element -->
+      <a href="#somewhere" aria-hidden="true">Hidden link</a>
+
+      <!-- Should pass: valid use -->
+      <p id="help">Type your name above.</p>
+      <input type="text" aria-describedby="help" aria-label="Name" />
+    </main>
+  </body>
+</html>

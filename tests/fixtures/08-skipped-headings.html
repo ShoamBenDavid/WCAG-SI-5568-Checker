@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: skipped headings</title>
+  </head>
+  <body>
+    <main>
+      <h1>Heading order fixture</h1>
+      <h2>Second level (ok)</h2>
+      <!-- Should fail: skipped from h2 to h4 -->
+      <h4>Skipped (h2 -> h4)</h4>
+      <!-- Should fail: empty heading -->
+      <h2></h2>
+      <h2>Recovered second level</h2>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: positive tabindex</title>
+  </head>
+  <body>
+    <main>
+      <h1>Positive tabindex fixture</h1>
+      <!-- Should fail: positive tabindex -->
+      <button tabindex="3">Third</button>
+      <button tabindex="1">First</button>
+      <!-- Should pass: tabindex 0 -->
+      <div tabindex="0">Focusable but no manual order</div>
+      <!-- Should pass: tabindex -1 -->
+      <div tabindex="-1">Programmatically focusable only</div>
+    </main>
+  </body>
+</html>

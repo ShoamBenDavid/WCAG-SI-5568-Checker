@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: image-alt</title>
+  </head>
+  <body>
+    <main>
+      <h1>Image alt text fixture</h1>
+      <!-- Should fail: missing alt -->
+      <img src="https://placehold.co/120" />
+      <!-- Should pass: explicit empty alt for decorative -->
+      <img src="https://placehold.co/120" alt="" />
+      <!-- Should pass: descriptive alt -->
+      <img src="https://placehold.co/120" alt="Placeholder thumbnail" />
+    </main>
+  </body>
+</html>

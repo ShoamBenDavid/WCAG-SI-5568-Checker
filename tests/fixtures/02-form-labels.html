@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture: form labels</title>
+  </head>
+  <body>
+    <main>
+      <h1>Form label fixture</h1>
+
+      <!-- Should pass: <label for> -->
+      <label for="email">Email</label>
+      <input id="email" type="email" />
+
+      <!-- Should pass: aria-label -->
+      <input type="text" aria-label="Search" />
+
+      <!-- Should fail (form-label): no label -->
+      <input type="text" />
+
+      <!-- Should pass: submit with value provides accessible name -->
+      <input type="submit" value="Send" />
+
+      <!-- Should fail placeholder-only-label rule: only placeholder -->
+      <input type="text" placeholder="Enter your phone number" />
+    </main>
+  </body>
+</html>
