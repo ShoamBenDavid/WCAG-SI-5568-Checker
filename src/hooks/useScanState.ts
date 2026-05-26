@@ -61,7 +61,6 @@ export function useScanState() {
           // Restore the standard / scope / URL so the user sees the matching settings.
           config: {
             ...prev.config,
-            url: data.result?.scannedUrl || prev.config.url,
             scope: data.result?.scanScope || prev.config.scope,
             standard:
               (data.result?.standard === "si5568" ? "is5568" : data.result?.standard) ||
@@ -167,6 +166,10 @@ export function useScanState() {
       resultTimestamp: null,
       error: null,
       progress: null,
+      config: {
+        ...prev.config,
+        url: "",
+      },
     }));
   }, []);
 
@@ -179,6 +182,10 @@ export function useScanState() {
       resultTimestamp: null,
       error: null,
       progress: null,
+      config: {
+        ...prev.config,
+        url: "",
+      },
     }));
   }, []);
 

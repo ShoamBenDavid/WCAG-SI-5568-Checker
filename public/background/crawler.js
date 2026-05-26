@@ -50,6 +50,30 @@ const SCANNER_FILES = [
   "rules/focus-visible.js",
   "rules/hebrew-rtl.js",
   "rules/accessibility-statement.js",
+  "rules/input-purpose.js",
+  "rules/link-purpose.js",
+  "rules/label-in-name.js",
+  "rules/audio-control.js",
+  "rules/status-messages.js",
+  "rules/meta-refresh.js",
+  "rules/target-size-minimum.js",
+  "rules/tables-headers.js",
+  "rules/fieldset-legend.js",
+  "rules/viewport-resize.js",
+  "rules/pause-stop-hide.js",
+  "rules/orientation-lock.js",
+  "rules/text-spacing.js",
+  "rules/language-of-parts.js",
+  "rules/non-text-contrast.js",
+  "rules/multiple-ways.js",
+  "rules/audio-description.js",
+  "rules/on-focus.js",
+  "rules/on-input.js",
+  "rules/error-identification.js",
+  "rules/pointer-cancellation.js",
+  "rules/content-on-hover.js",
+  "rules/use-of-color.js",
+  "rules/images-of-text.js",
   "content.js",
 ];
 
@@ -195,15 +219,11 @@ export async function getActiveTab() {
 }
 
 export async function runSinglePageScan(config, scanId, ruleCountHint = 22) {
-  const tab = await getActiveTab();
-  if (!tab || !tab.id || !tab.url) {
-    throw new Error("Unable to access active tab.");
-  }
-  if (!isScannableUrl(tab.url)) {
-    throw new Error("Active tab cannot be scanned. Please open an http/https page and retry.");
+  const targetUrl = normalizeUrl(config.url);
+  if (!targetUrl) {
+    throw new Error("Invalid URL for single-page scan.");
   }
 
-  await waitForTabComplete(tab.id);
   emitScanProgress(scanId, {
     scope: "single-page",
     current: 0,
@@ -212,21 +232,40 @@ export async function runSinglePageScan(config, scanId, ruleCountHint = 22) {
     label: "Starting checks",
   });
 
-  const response = await sendScanMessageToTab(tab.id, tab.url, config.standard, scanId);
-  if (!response?.ok) {
-    throw new Error(response?.error || "Scan failed in content script.");
+  const selectedFilters = normalizeDisabilityFilters(config.disabilityFilters);
+  const tab = await getActiveTab();
+  const activeUrl = tab?.url ? normalizeUrl(tab.url) : null;
+  let pageSummary;
+
+  if (tab?.id && activeUrl === targetUrl && isScannableUrl(tab.url || "")) {
+    await waitForTabComplete(tab.id);
+    const loadedTab = await chrome.tabs.get(tab.id);
+    const scanUrl = loadedTab?.url || tab.url;
+    const response = await sendScanMessageToTab(tab.id, scanUrl, config.standard, scanId);
+    if (!response?.ok) {
+      throw new Error(response?.error || "Scan failed in content script.");
+    }
+
+    const { issues: filteredIssues, stats: filteredStats } = applyDisabilityFilter(
+      normalizeIssues(response.issues, scanUrl),
+      response.wcagCheckStats || [],
+      selectedFilters
+    );
+    pageSummary = computePageSummary(scanUrl, filteredIssues, filteredStats);
+  } else {
+    const scanned = await scanUrlInHiddenTab(targetUrl, selectedFilters, config.standard);
+    pageSummary = scanned.pageSummary;
   }
 
-  const selectedFilters = normalizeDisabilityFilters(config.disabilityFilters);
-  const normalizedIssues = normalizeIssues(response.issues, tab.url);
-  const { issues: filteredIssues, stats: filteredStats } = applyDisabilityFilter(
-    normalizedIssues,
-    response.wcagCheckStats || [],
-    selectedFilters
-  );
+  emitScanProgress(scanId, {
+    scope: "single-page",
+    current: ruleCountHint,
+    total: ruleCountHint,
+    percent: 100,
+    label: `Checked: ${pageSummary.pageUrl}`,
+  });
 
-  const pageSummary = computePageSummary(tab.url, filteredIssues, filteredStats);
-  return aggregateFullResult(config, [pageSummary]);
+  return aggregateFullResult({ ...config, url: pageSummary.pageUrl }, [pageSummary]);
 }
 
 /**

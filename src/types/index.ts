@@ -104,6 +104,12 @@ export type AccessibilityIssue = {
   si5568?: Si5568Meta;
 
   affectedElements: number;
+  affectedElementDetails?: Array<{
+    index: number;
+    selector: string;
+    shortSelector?: string;
+    htmlSnippet?: string;
+  }>;
   passedElements?: number;
   impactPercentage?: number;
   pageUrl: string;

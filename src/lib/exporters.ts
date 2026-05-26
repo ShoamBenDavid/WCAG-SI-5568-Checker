@@ -70,6 +70,21 @@ function flattenStandardRefs(issue: AccessibilityIssue): {
   return { wcag, si5568 };
 }
 
+function flattenAffectedSelectors(issue: AccessibilityIssue): string {
+  const details = issue.affectedElementDetails || [];
+  if (details.length === 0) return issue.selector || "";
+  return details.map((detail) => `#${detail.index}: ${detail.selector}`).join("\n");
+}
+
+function flattenAffectedSnippets(issue: AccessibilityIssue): string {
+  const details = issue.affectedElementDetails || [];
+  if (details.length === 0) return issue.htmlSnippet || "";
+  return details
+    .filter((detail) => detail.htmlSnippet)
+    .map((detail) => `#${detail.index}: ${detail.htmlSnippet}`)
+    .join("\n");
+}
+
 export function exportCsv(result: FullScanResult) {
   const headers = [
     "Page URL",
@@ -103,8 +118,8 @@ export function exportCsv(result: FullScanResult) {
       refs.wcag,
       refs.si5568,
       (issue.disabilities || []).join("|"),
-      issue.selector || "",
-      issue.htmlSnippet || "",
+      flattenAffectedSelectors(issue),
+      flattenAffectedSnippets(issue),
       issue.description,
       issue.whyItMatters || "",
       issue.recommendation || "",

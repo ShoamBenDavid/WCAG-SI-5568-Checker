@@ -25,6 +25,10 @@
         )
       );
       const failedNodes = elems.filter((el) => {
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return false;
+        if (!a11y.isNativeInteractiveElement(el) && a11y.isInsideNativeInteractiveElement(el)) {
+          return false;
+        }
         const style = window.getComputedStyle(el);
         if (!a11y.isVisible(el, style)) return false;
         // Inline targets sitting inside flowing text are exempt per WCAG 2.5.8

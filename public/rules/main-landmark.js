@@ -19,7 +19,9 @@
       si5568: { criterion: "2.4.1", clause: "Annex A 2.4.1", level: "A" },
     },
     run(doc) {
-      const mains = a11y.toArray(doc.querySelectorAll("main, [role='main']"));
+      const mains = a11y
+        .toArray(doc.querySelectorAll("main, [role='main']"))
+        .filter((el) => !a11y.isElementHidden(el));
       const root = doc.documentElement;
       if (mains.length === 0) {
         return { total: 1, failedNodes: [doc.body || root] };

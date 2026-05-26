@@ -57,7 +57,9 @@
       },
     },
     run(doc) {
-      const headings = a11y.toArray(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"));
+      const headings = a11y
+        .toArray(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+        .filter((h) => !a11y.isElementHidden(h));
       const failed = [];
       let last = 0;
       const h1s = headings.filter((h) => h.tagName === "H1");

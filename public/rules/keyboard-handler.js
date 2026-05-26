@@ -40,24 +40,25 @@
         )
       );
       nonInteractive.forEach((el) => {
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return;
+        if (a11y.isInsideNativeInteractiveElement(el)) return;
         const role = el.getAttribute("role");
-        const tabindex = el.getAttribute("tabindex");
-        const hasKeyHandler =
-          el.hasAttribute("onkeydown") ||
-          el.hasAttribute("onkeypress") ||
-          el.hasAttribute("onkeyup");
-        if (!role || tabindex === null || !hasKeyHandler) failed.add(el);
+        const hasRole = role === "button" || role === "link";
+        if (!hasRole || !a11y.isKeyboardFocusable(el) || !a11y.hasKeyboardHandler(el)) {
+          failed.add(el);
+        }
       });
 
-      // 2. role=button/link on non-button/non-anchor without tabindex.
+      // 2. role=button/link on non-native elements without focusability.
       const customButtons = a11y.toArray(
         doc.querySelectorAll("[role='button'], [role='link']")
       );
       customButtons.forEach((el) => {
-        const tag = el.tagName.toLowerCase();
-        if (tag === "button" || (tag === "a" && el.hasAttribute("href"))) return;
-        const tabindex = el.getAttribute("tabindex");
-        if (tabindex === null) failed.add(el);
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return;
+        if (a11y.isNativeInteractiveElement(el)) return;
+        if (a11y.isInsideNativeInteractiveElement(el)) return;
+        if (!a11y.isKeyboardFocusable(el)) failed.add(el);
+        if (el.hasAttribute("onclick") && !a11y.hasKeyboardHandler(el)) failed.add(el);
       });
 
       const total = nonInteractive.length + customButtons.length;

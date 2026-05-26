@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Dashboard } from "./components/Dashboard";
 import { EmptyState } from "./components/EmptyState";
@@ -23,6 +23,7 @@ import {
 export default function App() {
   const isExtensionPopup = isExtensionRuntimeAvailable();
   const { t } = useTranslation();
+  const didAutofillUrl = useRef(false);
 
   const {
     status,
@@ -47,7 +48,9 @@ export default function App() {
 
   useEffect(() => {
     if (!isExtensionRuntimeAvailable()) return;
-    // Only auto-fill URL if there isn't already one (e.g. from a hydrated scan).
+    if (didAutofillUrl.current) return;
+    didAutofillUrl.current = true;
+    // Fill the search field from the active tab once; after that it is user-controlled.
     if (config.url) return;
     getActiveTabUrl()
       .then((url) => {

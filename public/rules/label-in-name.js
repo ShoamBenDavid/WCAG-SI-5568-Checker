@@ -17,7 +17,7 @@
     recommendation:
       "Avoid aria-label that disagrees with the visible text. Either drop the aria-label or extend it so the visible text is a substring (e.g. 'Search products' rather than 'Find').",
     disabilities: ["motor", "cognitive"],
-    selectorHint: "button, a, [role='button'], [role='link']",
+    selectorHint: "button, a[href], [role='button'], [role='link']",
     standards: {
       // 2.5.3 is new in WCAG 2.1 — no WCAG 2.0 / SI 5568 mapping.
       wcag21: { criterion: "2.5.3", level: "A" },
@@ -25,10 +25,13 @@
     },
     run(doc) {
       const candidates = a11y.toArray(
-        doc.querySelectorAll("button, a, [role='button'], [role='link']")
+        doc.querySelectorAll("button, a[href], [role='button'], [role='link']")
       );
       const failedNodes = candidates.filter((el) => {
-        if (el.getAttribute("aria-hidden") === "true") return false;
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return false;
+        if (!a11y.isNativeInteractiveElement(el) && a11y.isInsideNativeInteractiveElement(el)) {
+          return false;
+        }
         const visible = visibleText(el);
         const name = (a11y.getAccessibleName(el) || "").trim();
         if (!visible || !name) return false;

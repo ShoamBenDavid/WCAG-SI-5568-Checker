@@ -30,6 +30,43 @@
     return texts.join(" ").trim();
   }
 
+  function descendantTextAlternative(element) {
+    const parts = [];
+    element.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = (node.textContent || "").trim();
+        if (text) parts.push(text);
+        return;
+      }
+      if (!(node instanceof Element)) return;
+      if (a11y.isElementHidden && a11y.isElementHidden(node)) return;
+      if (node instanceof HTMLImageElement) {
+        const alt = (node.getAttribute("alt") || "").trim();
+        if (alt) parts.push(alt);
+        return;
+      }
+      if (node instanceof SVGElement) {
+        const title = node.querySelector("title");
+        const titleText = title ? (title.textContent || "").trim() : "";
+        if (titleText) parts.push(titleText);
+        return;
+      }
+      const labelledByText = resolveLabelledBy(node);
+      if (labelledByText) {
+        parts.push(labelledByText);
+        return;
+      }
+      const ariaLabel = node.getAttribute("aria-label");
+      if (ariaLabel && ariaLabel.trim()) {
+        parts.push(ariaLabel.trim());
+        return;
+      }
+      const childText = descendantTextAlternative(node);
+      if (childText) parts.push(childText);
+    });
+    return parts.join(" ").replace(/\s+/g, " ").trim();
+  }
+
   a11y.getAccessibleName = function getAccessibleName(element) {
     if (!element || !(element instanceof Element)) return "";
 
@@ -79,9 +116,9 @@
       if (labelText) return labelText;
     }
 
-    // 4. <button> uses its text content as accessible name.
+    // 4. <button> uses its text/descendant alternatives as accessible name.
     if (element instanceof HTMLButtonElement) {
-      const text = (element.textContent || "").trim();
+      const text = descendantTextAlternative(element);
       if (text) return text;
     }
 
@@ -95,8 +132,8 @@
     const title = element.getAttribute("title");
     if (title && title.trim()) return title.trim();
 
-    // 7. visible text content (last resort for links etc.)
-    const text = (element.textContent || "").trim();
+    // 7. visible text/descendant alternatives (last resort for links etc.).
+    const text = descendantTextAlternative(element);
     return text || "";
   };
 
