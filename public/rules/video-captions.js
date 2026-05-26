@@ -56,6 +56,8 @@
     run(doc) {
       const videos = a11y.toArray(doc.querySelectorAll("video"));
       const failedNodes = videos.filter((video) => {
+        if (a11y.isElementHidden(video)) return false;
+        if (video.hasAttribute("muted") && !video.hasAttribute("controls")) return false;
         const hasCaptions = Boolean(
           video.querySelector('track[kind="captions"], track[kind="subtitles"]')
         );

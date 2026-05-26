@@ -22,14 +22,7 @@
   ]);
 
   function isFocusable(el) {
-    const tag = el.tagName.toLowerCase();
-    const ti = el.getAttribute("tabindex");
-    if (ti !== null && Number(ti) >= 0) return true;
-    if (tag === "button" || tag === "select" || tag === "textarea") return true;
-    if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() !== "hidden") return true;
-    if (tag === "a" && el.hasAttribute("href")) return true;
-    if (tag === "iframe") return true;
-    return false;
+    return a11y.isKeyboardFocusable(el);
   }
 
   a11y.register({
@@ -75,9 +68,9 @@
       a11y.toArray(doc.querySelectorAll("[aria-hidden='true']")).forEach((el) => {
         if (isFocusable(el)) failed.add(el);
         // Also flag if any descendant is focusable.
-        const focusableDesc = el.querySelector(
-          "a[href], button, input, select, textarea, iframe, [tabindex]"
-        );
+        const focusableDesc = a11y
+          .toArray(el.querySelectorAll("a[href], button, input, select, textarea, summary, iframe, [tabindex]"))
+          .some((node) => isFocusable(node));
         if (focusableDesc) failed.add(el);
       });
 

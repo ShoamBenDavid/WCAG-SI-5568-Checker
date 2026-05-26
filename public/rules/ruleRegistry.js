@@ -97,15 +97,33 @@
     }
   }
 
-  function buildIssue(rule, standard, failedNode, totalElements, failedCount, scannedAt) {
+  function buildElementDetail(node, index) {
+    const selector =
+      a11y.uniqueCssPath(node) || a11y.cssPath(node) || `affected-element-${index + 1}`;
+    return {
+      index: index + 1,
+      selector,
+      shortSelector: a11y.cssPath(node) || selector,
+      htmlSnippet: a11y.htmlSnippet(node),
+    };
+  }
+
+  function buildIssue(rule, standard, failedNodes, totalElements, scannedAt) {
+    const failedCount = failedNodes.length;
+    const failedNode = failedNodes[0];
     const passedElements = Math.max(0, totalElements - failedCount);
     const impactPercentage =
       totalElements === 0
         ? 0
         : Number(a11y.clamp((failedCount / totalElements) * 100, 0, 100).toFixed(1));
 
+    const affectedElementDetails = failedNodes.map(buildElementDetail);
     const selector =
-      a11y.cssPath(failedNode) || rule.selectorHint || rule.selectorFallback || "";
+      (affectedElementDetails[0] && affectedElementDetails[0].selector) ||
+      a11y.cssPath(failedNode) ||
+      rule.selectorHint ||
+      rule.selectorFallback ||
+      "";
     const snippet = a11y.htmlSnippet(failedNode);
 
     return {
@@ -137,6 +155,7 @@
         : undefined,
       standardReference: formatStandardReference(rule, standard),
       affectedElements: failedCount,
+      affectedElementDetails,
       impactPercentage,
       passedElements,
       selector,
@@ -224,7 +243,7 @@
 
       if (failedCount > 0) {
         issues.push(
-          buildIssue(rule, normalized, failedNodes[0], totalElements, failedCount, scannedAt)
+          buildIssue(rule, normalized, failedNodes, totalElements, scannedAt)
         );
       }
 

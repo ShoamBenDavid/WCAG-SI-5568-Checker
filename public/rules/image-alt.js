@@ -52,7 +52,12 @@
     },
     run(doc) {
       const images = a11y.toArray(doc.querySelectorAll("img"));
-      const failedNodes = images.filter((img) => !img.hasAttribute("alt"));
+      const failedNodes = images.filter((img) => {
+        if (a11y.isElementHidden(img)) return false;
+        const role = (img.getAttribute("role") || "").toLowerCase();
+        if (role === "presentation" || role === "none") return false;
+        return !img.hasAttribute("alt");
+      });
       return { total: images.length, failedNodes };
     },
   });

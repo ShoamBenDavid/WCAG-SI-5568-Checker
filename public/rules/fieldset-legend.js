@@ -56,7 +56,7 @@
       // name and aren't already grouped via fieldset/role=group.
       const all = a11y.toArray(
         doc.querySelectorAll("input[type='radio'], input[type='checkbox']")
-      );
+      ).filter((el) => !a11y.isElementHidden(el) && !a11y.isDisabled(el));
       const byName = new Map();
       all.forEach((el) => {
         const name = el.getAttribute("name");
@@ -71,16 +71,16 @@
       byName.forEach((nodes) => {
         if (nodes.length < 2) return;
         groupCount += 1;
-        const inFieldset = nodes.every((n) => n.closest("fieldset"));
-        if (inFieldset) {
-          const fs = nodes[0].closest("fieldset");
+        const fs = nodes[0].closest("fieldset");
+        const inSameFieldset = fs && nodes.every((n) => n.closest("fieldset") === fs);
+        if (inSameFieldset) {
           const legend = fs ? fs.querySelector(":scope > legend") : null;
           const legendText = legend ? (legend.textContent || "").trim() : "";
           if (legendText) return;
         }
         // Allow ARIA grouping with a non-empty accessible name.
         const grouped = nodes[0].closest("[role='group'], [role='radiogroup']");
-        if (grouped) {
+        if (grouped && nodes.every((n) => n.closest("[role='group'], [role='radiogroup']") === grouped)) {
           const groupName = (a11y.getAccessibleName(grouped) || "").trim();
           if (groupName) return;
         }

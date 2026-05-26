@@ -54,6 +54,7 @@
     run(doc) {
       const all = a11y
         .toArray(doc.querySelectorAll("input[placeholder], textarea[placeholder]"))
+        .filter((el) => !a11y.isElementHidden(el))
         .filter((el) => {
           if (!(el instanceof HTMLInputElement)) return true;
           const t = (el.getAttribute("type") || "text").toLowerCase();

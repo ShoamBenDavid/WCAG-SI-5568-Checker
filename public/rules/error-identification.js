@@ -7,6 +7,7 @@
     return ids
       .map((id) => (id ? el.ownerDocument.getElementById(id) : null))
       .filter(Boolean)
+      .filter((node) => !a11y.isElementHidden(node))
       .map((node) => (node.textContent || "").trim())
       .filter(Boolean)
       .join(" ");
@@ -33,13 +34,14 @@
     run(doc) {
       const candidates = a11y.toArray(doc.querySelectorAll("[aria-invalid='true']"));
       const failedNodes = candidates.filter((el) => {
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return false;
         const txt = describedByText(el);
         if (txt) return false;
         // Fallback: a role='alert' sibling/ancestor close by.
         const parent = el.closest("form, fieldset, label, .field, .form-field, div");
         const sibling =
           parent && parent.querySelector("[role='alert'], [aria-live='assertive']");
-        if (sibling && (sibling.textContent || "").trim()) return false;
+        if (sibling && !a11y.isElementHidden(sibling) && (sibling.textContent || "").trim()) return false;
         return true;
       });
       return { total: candidates.length, failedNodes };

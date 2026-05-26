@@ -29,6 +29,53 @@
     return `${tag}${classPart}`;
   };
 
+  a11y.uniqueCssPath = function uniqueCssPath(element) {
+    if (!element || !(element instanceof Element)) return undefined;
+    const parts = [];
+    let current = element;
+
+    while (current && current instanceof Element && current !== document.documentElement) {
+      const tag = current.tagName.toLowerCase();
+      if (current.id) {
+        const idSelector = `#${CSS.escape(current.id)}`;
+        if (document.querySelectorAll(idSelector).length === 1) {
+          parts.unshift(idSelector);
+          break;
+        }
+      }
+
+      let selector = tag;
+      if (current.id) {
+        selector += `[id="${CSS.escape(current.id)}"]`;
+      }
+      if (current.classList.length > 0) {
+        selector +=
+          "." +
+          a11y
+            .toArray(current.classList)
+            .slice(0, 3)
+            .map((className) => CSS.escape(className))
+            .join(".");
+      }
+
+      const parent = current.parentElement;
+      if (parent) {
+        const sameTagSiblings = a11y
+          .toArray(parent.children)
+          .filter((child) => child.tagName === current.tagName);
+        if (sameTagSiblings.length > 1) {
+          selector += `:nth-of-type(${sameTagSiblings.indexOf(current) + 1})`;
+        }
+      }
+
+      parts.unshift(selector);
+      current = parent;
+    }
+
+    if (parts.length === 0) return a11y.cssPath(element);
+    return parts.join(" > ");
+  };
+
   a11y.htmlSnippet = function htmlSnippet(element, maxLength = 260) {
     if (!element || !(element instanceof Element)) return undefined;
     const normalized = element.outerHTML.replace(/\s+/g, " ").trim();
@@ -42,11 +89,76 @@
    */
   a11y.isVisible = function isVisible(el, style) {
     if (!el || !(el instanceof Element)) return false;
+    if (a11y.isElementHidden(el)) return false;
     const s = style || window.getComputedStyle(el);
     if (s.visibility === "hidden" || s.display === "none") return false;
     if (Number.parseFloat(s.opacity) === 0) return false;
     const rect = el.getBoundingClientRect();
     return rect.width > 0 && rect.height > 0;
+  };
+
+  a11y.isElementHidden = function isElementHidden(el) {
+    if (!el || !(el instanceof Element)) return true;
+    if (el.hidden) return true;
+    if (el.getAttribute("aria-hidden") === "true") return true;
+    if (el.closest("[hidden], [aria-hidden='true']")) return true;
+    let cur = el;
+    while (cur && cur instanceof Element) {
+      const style = window.getComputedStyle(cur);
+      if (style.display === "none" || style.visibility === "hidden") return true;
+      cur = cur.parentElement;
+    }
+    return false;
+  };
+
+  a11y.isDisabled = function isDisabled(el) {
+    if (!el || !(el instanceof Element)) return false;
+    if (el.matches(":disabled")) return true;
+    return Boolean(el.closest("[aria-disabled='true']"));
+  };
+
+  a11y.isNativeInteractiveElement = function isNativeInteractiveElement(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const tag = el.tagName.toLowerCase();
+    if (tag === "a") return el.hasAttribute("href");
+    if (tag === "button" || tag === "select" || tag === "textarea" || tag === "summary") {
+      return true;
+    }
+    if (tag === "input") {
+      return (el.getAttribute("type") || "text").toLowerCase() !== "hidden";
+    }
+    return false;
+  };
+
+  a11y.isInsideNativeInteractiveElement = function isInsideNativeInteractiveElement(el) {
+    if (!el || !(el instanceof Element)) return false;
+    let parent = el.parentElement;
+    while (parent) {
+      if (a11y.isNativeInteractiveElement(parent)) return true;
+      parent = parent.parentElement;
+    }
+    return false;
+  };
+
+  a11y.isKeyboardFocusable = function isKeyboardFocusable(el) {
+    if (!el || !(el instanceof Element)) return false;
+    if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return false;
+    const tabindex = el.getAttribute("tabindex");
+    if (tabindex !== null) {
+      const value = Number(tabindex);
+      return Number.isFinite(value) && value >= 0;
+    }
+    if (a11y.isNativeInteractiveElement(el)) return true;
+    return el.tagName.toLowerCase() === "iframe";
+  };
+
+  a11y.hasKeyboardHandler = function hasKeyboardHandler(el) {
+    if (!el || !(el instanceof Element)) return false;
+    return (
+      el.hasAttribute("onkeydown") ||
+      el.hasAttribute("onkeypress") ||
+      el.hasAttribute("onkeyup")
+    );
   };
 
   /**

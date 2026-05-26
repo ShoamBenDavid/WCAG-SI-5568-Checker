@@ -19,6 +19,16 @@
 
       <!-- Should pass: real link -->
       <a href="#">Real link</a>
+
+      <!-- Should pass: redundant inner role is inside a native link and should not require tabindex -->
+      <a href="/nested-role-link">
+        <span role="link">Nested redundant role link</span>
+      </a>
+
+      <!-- Should pass: image-only native link has a name from the image alt -->
+      <a href="/image-link">
+        <img src="example.png" alt="Image link destination" />
+      </a>
     </main>
   </body>
 </html>

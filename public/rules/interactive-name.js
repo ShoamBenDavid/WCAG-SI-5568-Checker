@@ -13,7 +13,7 @@
     recommendation:
       "Provide visible text content, an aria-label, an aria-labelledby reference, a title attribute, or alt text for icon images.",
     disabilities: ["visual", "cognitive", "motor"],
-    selectorHint: "a, button, [role='button'], [role='link']",
+    selectorHint: "a[href], button, [role='button'], [role='link']",
     standards: {
       wcag20: { criterion: "4.1.2", level: "A" },
       wcag21: { criterion: "4.1.2", level: "A" },
@@ -22,12 +22,13 @@
     },
     run(doc) {
       const candidates = a11y.toArray(
-        doc.querySelectorAll("a, button, [role='button'], [role='link']")
+        doc.querySelectorAll("a[href], button, input[type='button'], input[type='submit'], input[type='reset'], input[type='image'], [role='button'], [role='link']")
       );
       const failedNodes = candidates.filter((el) => {
-        // Skip elements that are aria-hidden — they're explicitly removed
-        // from the accessibility tree.
-        if (el.getAttribute("aria-hidden") === "true") return false;
+        if (a11y.isElementHidden(el) || a11y.isDisabled(el)) return false;
+        if (!a11y.isNativeInteractiveElement(el) && a11y.isInsideNativeInteractiveElement(el)) {
+          return false;
+        }
         const name = a11y.getAccessibleName(el);
         return !name;
       });

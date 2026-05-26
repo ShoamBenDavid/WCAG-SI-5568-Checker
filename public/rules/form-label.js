@@ -54,6 +54,7 @@
     run(doc) {
       const controls = a11y
         .toArray(doc.querySelectorAll("input, select, textarea"))
+        .filter((el) => !a11y.isElementHidden(el))
         // Hidden inputs require no label.
         .filter((el) => {
           if (!(el instanceof HTMLInputElement)) return true;
