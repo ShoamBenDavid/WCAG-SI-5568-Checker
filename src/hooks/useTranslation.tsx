@@ -95,6 +95,15 @@ const translations: Record<Language, Dict> = {
     dashboard_critical_issues: "Critical Issues",
     dashboard_critical_subtitle: "Require immediate attention",
     dashboard_failed_pages: "{{count}} page{{suffix}} could not be scanned",
+    dashboard_score_method_title: "How the score is calculated",
+    dashboard_score_method_intro:
+      "The score starts at 100 and subtracts points based on issue severity. For full-site scans, page scores are averaged.",
+    dashboard_score_method_critical: "Critical issue: -8 points",
+    dashboard_score_method_serious: "Serious issue: -5 points",
+    dashboard_score_method_moderate: "Moderate issue: -3 points",
+    dashboard_score_method_minor: "Minor issue: -1 point",
+    dashboard_score_method_note:
+      "This is an automated screening score, not a legal certification or a replacement for manual accessibility testing.",
 
     severity_distribution_title: "Issue Distribution",
     severity_critical: "Critical",
@@ -237,6 +246,15 @@ const translations: Record<Language, Dict> = {
     dashboard_critical_issues: "ליקויים קריטיים",
     dashboard_critical_subtitle: "דורשים טיפול מיידי",
     dashboard_failed_pages: "לא ניתן היה לסרוק {{count}} עמוד{{suffix}}",
+    dashboard_score_method_title: "איך הציון מחושב",
+    dashboard_score_method_intro:
+      "הציון מתחיל מ-100 ומופחת לפי חומרת הליקויים. בסריקת אתר מלא, הציון הוא ממוצע ציוני העמודים.",
+    dashboard_score_method_critical: "ליקוי קריטי: מינוס 8 נקודות",
+    dashboard_score_method_serious: "ליקוי חמור: מינוס 5 נקודות",
+    dashboard_score_method_moderate: "ליקוי בינוני: מינוס 3 נקודות",
+    dashboard_score_method_minor: "ליקוי קל: מינוס נקודה אחת",
+    dashboard_score_method_note:
+      "זהו ציון סינון אוטומטי בלבד, לא אישור משפטי ולא תחליף לבדיקת נגישות ידנית.",
 
     severity_distribution_title: "התפלגות ליקויים",
     severity_critical: "קריטי",
