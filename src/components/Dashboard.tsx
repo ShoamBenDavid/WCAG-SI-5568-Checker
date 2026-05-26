@@ -111,6 +111,42 @@ export function Dashboard({
         />
       )}
 
+      {showKpi && (
+        <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-indigo-50 p-2">
+              <Gauge className="h-5 w-5 text-indigo-600" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-slate-800">
+                {t('dashboard_score_method_title')}
+              </h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                {t('dashboard_score_method_intro')}
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  ['bg-red-100 text-red-700', t('dashboard_score_method_critical')],
+                  ['bg-orange-100 text-orange-700', t('dashboard_score_method_serious')],
+                  ['bg-amber-100 text-amber-700', t('dashboard_score_method_moderate')],
+                  ['bg-blue-100 text-blue-700', t('dashboard_score_method_minor')],
+                ].map(([className, label]) => (
+                  <span
+                    key={label}
+                    className={`rounded-md px-3 py-2 text-xs font-semibold ${className}`}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 text-xs leading-5 text-slate-500">
+                {t('dashboard_score_method_note')}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Crawl-failure summary */}
       {failedPages.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
