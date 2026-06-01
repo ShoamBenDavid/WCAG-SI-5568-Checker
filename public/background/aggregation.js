@@ -111,9 +111,33 @@ export function normalizeIssues(issues, fallbackUrl) {
 export function aggregateFullResult(config, pages, failedPages = []) {
   const standard = normalizeComplianceStandard(config.standard);
   const issues = pages.flatMap((page) => page.issues);
+  const issueCountByRule = new Map();
+  issues.forEach((issue) => {
+    if (!issue?.ruleId) return;
+    issueCountByRule.set(issue.ruleId, (issueCountByRule.get(issue.ruleId) || 0) + 1);
+  });
   const wcagCheckStats = aggregateWcagCheckStats(
     pages.flatMap((page) => page.wcagCheckStats || [])
-  );
+  )
+    .map((stat) => {
+      const checkedPages = pages.length;
+      const failedChecks = Math.min(checkedPages, issueCountByRule.get(stat.ruleId) || 0);
+      const passedChecks = Math.max(0, checkedPages - failedChecks);
+      return {
+        ...stat,
+        checkedPages,
+        failedChecks,
+        passedChecks,
+        checkPassRate:
+          checkedPages === 0
+            ? 100
+            : Number(((passedChecks / checkedPages) * 100).toFixed(1)),
+      };
+    })
+    .sort((a, b) => {
+      if (a.failedChecks !== b.failedChecks) return b.failedChecks - a.failedChecks;
+      return (a.title || "").localeCompare(b.title || "");
+    });
   const criticalIssues = issues.filter((i) => i.severity === "critical").length;
   const seriousIssues = issues.filter((i) => i.severity === "serious").length;
   const moderateIssues = issues.filter((i) => i.severity === "moderate").length;

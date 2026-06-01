@@ -132,6 +132,10 @@ export type WcagCheckStat = {
   failedElements: number;
   passedElements: number;
   passRate: number;
+  checkedPages?: number;
+  failedChecks?: number;
+  passedChecks?: number;
+  checkPassRate?: number;
 };
 
 export type FailedPage = {

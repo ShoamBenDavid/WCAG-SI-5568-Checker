@@ -54,6 +54,10 @@ export function WcagChecksStats({
           <tbody>
             {stats.map((stat) => {
               const resolved = pickStatText(stat, standard, language);
+              const passed = stat.passedChecks ?? stat.passedElements;
+              const failed = stat.failedChecks ?? stat.failedElements;
+              const total = stat.checkedPages ?? stat.totalElements;
+              const passRate = stat.checkPassRate ?? stat.passRate;
               return (
               <tr key={stat.ruleId} className="border-t border-slate-100">
                 <td className="px-5 py-3">
@@ -77,19 +81,19 @@ export function WcagChecksStats({
                     {t(SEVERITY_LABEL_KEY[stat.severity] || "severity_minor")}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-emerald-700 font-medium">{stat.passedElements}</td>
-                <td className="px-5 py-3 text-red-700 font-medium">{stat.failedElements}</td>
-                <td className="px-5 py-3 text-slate-700">{stat.totalElements}</td>
+                <td className="px-5 py-3 text-emerald-700 font-medium">{passed}</td>
+                <td className="px-5 py-3 text-red-700 font-medium">{failed}</td>
+                <td className="px-5 py-3 text-slate-700">{total}</td>
                 <td className="px-5 py-3 min-w-[180px]">
                   <div className="flex items-center gap-3">
                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-500"
-                        style={{ width: `${stat.passRate}%` }}
+                        style={{ width: `${passRate}%` }}
                       />
                     </div>
                     <span className="text-slate-700 font-medium min-w-[3.2rem]">
-                      {stat.passRate}%
+                      {passRate}%
                     </span>
                   </div>
                 </td>
